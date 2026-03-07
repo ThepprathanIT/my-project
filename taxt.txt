@@ -1,2 +1,54 @@
+เพื่อให้งานเสร็จทันส่งวันจันทร์และได้คะแนนดีในฐานะนักศึกษา IT ที่มีความสนใจด้าน Cybersecurity และ UX/UI ผมได้สรุป โครงสร้างเกม (Game Flow) และ ขั้นตอนการทำ (Step-by-Step) แบบละเอียดมาให้ครับ เราจะเน้นเนื้อหาที่กระชับแต่มีลูกเล่นการ Coding ใน VS Code เพื่อโชว์ทักษะ
+1. แนวทางเกม (Game Concept)
+    ชื่อเกม: The Secure Code: Search for the Sacred Relic
+    แนว: Adventure / Puzzle (ผจญภัยแก้ปริศนา)
+    เนื้อเรื่อง: ผู้เล่นต้องเข้าไปในวิหารร้างเพื่อกู้คืน "ศิลาข้อมูล" ที่ถูกขโมยไป โดยต้องผ่านด่านการต่อสู้และแก้รหัสผ่าน (Mini-puzzle) เพื่อเข้าถึงห้องบอส
+2. โครงสร้าง 3 แผนที่ (Level Design)
+   Map 1: หมู่บ้าน	| คุยกับ NPC เพื่อรับเควสและเปิดประตูหมู่บ้าน  |	ใช้ Switch QuestStarted ควบคุมการเปิดประตู
+   Map 2: ป่า |	สู้กับมอนสเตอร์ 2-3 ตัวเพื่อเก็บเลเวลและหา "รหัสผ่าน" |	มอนสเตอร์เดินไล่ตาม (Approach) และสุ่มโบนัสทองผ่าน VS Code 
+   Map 3: วิหาร | ใส่รหัสผ่านที่ได้จากป่าเพื่อเปิดประตูกลไปหาบอส |	ระบบเช็ครหัสผ่านผ่านหน้าจอ Script (โชว์ทักษะ Programming)
+3. ขั้นตอนการทำอย่างละเอียด (Implementation Steps)
+    Step 1: เตรียมไฟล์เชื่อมต่อ (VS Code)
+    เปิดไฟล์ main_extension.rb ใน VS Code แล้ววางโครงสร้างนี้ไว้ (ใช้สำหรับการโชว์อาจารย์):
+        # encoding: utf-8
+        module GameSystem
+            # ระบบประกาศชื่อแผนที่แบบเท่ๆ
+            def self.map_announce(name)
+                msgbox "--- กำลังเข้าสู่: #{name} ---"
+        end
 
+        # ระบบสุ่มรางวัลโบนัส (IT Logic)
+        def self.get_bonus(type)
+            amount = rand(20..100)
+             if type == "gold"
+                $game_party.gain_gold(amount)
+                msgbox "ได้รับโบนัสระบบ #{amount} Gold"
+            end
+        end
+    end
 
+Step 2: สร้าง Event ใน Map 1 (จุดเริ่มต้น)
+1. NPC ผู้เฒ่า: ให้โต้ตอบแล้วเปิด Switch: [0001:QuestStarted] = ON
+2. ประตูวาร์ปไป Map 2:
+   + หน้า 1: ไม่มีเงื่อนไข, แสดงข้อความ "ประตูถูกล็อค"
+   + หน้า 2: เงื่อนไข QuestStarted เป็น ON, ใส่คำสั่ง Transfer Player ไป Map 2
+Step 3: ตั้งค่าศัตรูใน Database (F9)
+1. Enemies: สร้างมอนสเตอร์ชื่อ "Virus Slime" ตั้ง HP ประมาณ 80
+2. Troops: สร้างกลุ่มศัตรูชื่อ "Infection"
+3. Map 2: วาง Event มอนสเตอร์ ตั้ง Trigger เป็น Player Touch และในส่วน If Win ให้เรียกใช้ Script GameSystem.get_bonus("gold")
+
+Step 4: ระบบรหัสผ่านใน Map 3 (The IT Puzzle)
+สร้าง Event ประตูหน้าห้องบอส และใช้คำสั่ง Input Number เพื่อจำลองการแก้รหัส:
+1. Contents:
+    + Input Number: [0001:Password], 4 digits (ให้ผู้เล่นเดารหัสจากคำใบ้ในป่า)
+    + Conditional Branch: If Variable [0001:Password] == 1234
+        + Show Text: "รหัสถูกต้อง! ประตูเปิดออก"
+        + Set Move Route (This Event): Turn Left, Turn Right, Turn Up (อนิเมชันเปิดประตู)
+    + Else:
+        + Show Text: "รหัสผิด! ระบบป้องกันทำงาน"
+        + Shake Screen (สั่นหน้าจอโชว์ความผิดพลาด)
+
+4. ข้อแนะนำสำหรับการส่งงานวันจันทร์
+    1. UX/UI Check: ตรวจสอบว่าทางเดินไม่แคบเกินไป และสีข้อความอ่านง่าย
+    2. GitHub Backup: เนื่องจากคุณมี GitHub (Diaw123/DDD) อย่าลืมอัปโหลดโค้ด Ruby ที่เขียนใน VS Code ขึ้นไปด้วยเพื่อโชว์ Version Control
+    3. Playtest: รันเกมตั้งแต่ต้นจนจบ 1 รอบ เพื่อเช็คว่าไม่มีจุดไหนที่เดินติด (Priority Error)
