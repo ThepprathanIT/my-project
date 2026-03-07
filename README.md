@@ -1,1 +1,1 @@
-"# My First Project" 
+"Testing Git on Ubuntu with VS Code" 
